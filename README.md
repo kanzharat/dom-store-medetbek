@@ -4,9 +4,11 @@ Study project for the web course, Lab 5. An interactive product page built on th
 
 Repository: https://github.com/kanzharat/dom-store-medetbek
 
+Live site: https://kanzharat.github.io/dom-store-medetbek/
+
 ## How to open it
 
-Download the repository and open `index.html` in a browser, double click is enough. There is nothing to install and no server is needed: the scripts are loaded as classic `<script>` tags, not modules, so the page also works from `file://`.
+Open the live site, or download the repository and open `index.html` in a browser, double click is enough. There is nothing to install and no server is needed: the scripts are loaded as classic `<script>` tags, not modules, so the page also works from `file://`.
 
 ## What it does
 
