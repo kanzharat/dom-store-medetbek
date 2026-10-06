@@ -135,4 +135,29 @@ form.addEventListener('input', (event) => {
   if (field.name && form.elements[field.name]) showError(field.name, '');
 });
 
+// EVENT DELEGATION: one listener on the whole table serves the buttons of every row,
+// including rows that do not exist yet, so nothing has to be rebound after render()
+table.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-action]');
+  if (!button || !table.contains(button)) return;
+
+  const { name } = button.closest('tr').dataset;
+  const item = store.find(name);
+  if (!item) return;
+
+  const { action } = button.dataset;
+  if (action === 'remove') {
+    store.remove(name);
+    say(`Deleted: ${name}.`);
+  } else if (action === 'inc') {
+    store.setQty(name, item.qty + 1);
+    say(`${name}: ${item.qty} pcs.`);
+  } else if (action === 'dec') {
+    store.setQty(name, item.qty - 1);
+    say(`${name}: ${item.qty} pcs.`);
+  }
+
+  render(); // the total is recalculated here, so it is always in sync with the store
+});
+
 render();
