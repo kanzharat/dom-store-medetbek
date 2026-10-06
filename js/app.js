@@ -75,3 +75,64 @@ function render() {
 function say(message) {
   statusLine.textContent = message;
 }
+
+// Checks the three fields and returns the clean values plus a message per bad field
+function validate({ name, price, qty }) {
+  const errors = {};
+  const cleanName = name.trim();
+  const cleanPrice = Number(price.replace(',', '.'));
+  const cleanQty = Number(qty);
+
+  if (cleanName === '') errors.name = 'Enter a name';
+  else if (store.find(cleanName)) errors.name = 'Already in the list, change the quantity with the + button';
+
+  if (price.trim() === '') errors.price = 'Enter a price';
+  else if (!Number.isFinite(cleanPrice)) errors.price = 'Price must be a number';
+  else if (cleanPrice <= 0) errors.price = 'Price must be greater than zero';
+
+  if (qty.trim() === '') errors.qty = 'Enter a quantity';
+  else if (!Number.isFinite(cleanQty)) errors.qty = 'Quantity must be a number';
+  else if (!Number.isInteger(cleanQty)) errors.qty = 'Quantity must be a whole number';
+  else if (cleanQty < 1) errors.qty = 'Quantity must be at least 1';
+
+  return { item: { name: cleanName, price: cleanPrice, qty: cleanQty }, errors };
+}
+
+// Puts the message under the field instead of alert, the field itself is marked too
+function showError(fieldName, message) {
+  const field = form.elements[fieldName];
+  const box = form.querySelector(`[data-error-for="${fieldName}"]`);
+  box.textContent = message ?? '';
+  field.classList.toggle('is-invalid', Boolean(message));
+  field.setAttribute('aria-invalid', message ? 'true' : 'false');
+}
+
+// submit, not click: the Enter key works and the page does not reload
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const { name, price, qty } = form.elements;
+  const { item, errors } = validate({ name: name.value, price: price.value, qty: qty.value });
+
+  ['name', 'price', 'qty'].forEach((field) => showError(field, errors[field]));
+
+  const firstBad = ['name', 'price', 'qty'].find((field) => errors[field]);
+  if (firstBad) {
+    form.elements[firstBad].focus();
+    say('Check the fields marked in red.');
+    return;
+  }
+
+  store.add(item);
+  render();
+  form.reset();
+  name.focus();
+  say(`Added: ${item.name}, ${item.qty} pcs.`);
+});
+
+// One more delegated listener: typing in any field clears the error of that field
+form.addEventListener('input', (event) => {
+  const field = event.target;
+  if (field.name && form.elements[field.name]) showError(field.name, '');
+});
+
+render();
